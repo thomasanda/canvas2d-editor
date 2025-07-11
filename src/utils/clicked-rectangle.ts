@@ -1,11 +1,12 @@
+import { clampCenter, getRotatedBoundingBox } from "./calcs";
 import type { TElementType } from "./create-new-element";
 
 const elementHit = (el: TElementType, xCoord: number, yCoord: number) => {
-  const cx = el.x + el.width / 2;
-  const cy = el.y + el.height / 2;
+  const centerX = el.x + el.width / 2;
+  const centerY = el.y + el.height / 2;
 
-  const dx = xCoord - cx;
-  const dy = yCoord - cy;
+  const dx = xCoord - centerX;
+  const dy = yCoord - centerY;
 
   const cos = Math.cos(-el.rotation);
   const sin = Math.sin(-el.rotation);

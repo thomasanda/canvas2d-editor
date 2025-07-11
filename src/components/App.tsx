@@ -4,15 +4,19 @@ import {
   useEffect,
   useState,
   useCallback,
+  type MouseEvent,
+  type ChangeEvent,
 } from "react";
 import Scene from "../scene";
 import "./app.css";
+import { Spacer } from "./spacer";
 
 export const App = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const sceneRef = useRef<Scene | null>(null);
 
   const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
+  const [duration, setDuration] = useState(1);
 
   const updateCanvasSize = useCallback(() => {
     if (canvasRef.current) {
@@ -46,7 +50,7 @@ export const App = () => {
     sceneRef.current.updateElement(clientX, clientY);
   };
 
-  const onAddRectangle = (evt: PointerEvent<HTMLCanvasElement>) => {
+  const onAddRectangle = (evt: MouseEvent<HTMLButtonElement>) => {
     if (!sceneRef.current || !canvasRef.current) return;
     const { width, height } = canvasRef.current;
     const count = evt.shiftKey ? 1001 : 1;
@@ -61,6 +65,34 @@ export const App = () => {
     sceneRef.current.setHoveredElement(clientX, clientY);
   };
 
+  const onAnimate = () => {
+    if (!sceneRef.current) return;
+    sceneRef.current.startRotationAnimation();
+  };
+
+  const onChangeDuration = (evt: ChangeEvent<HTMLInputElement>) => {
+    const { value } = evt.target;
+    const newDuration = value === "" ? 1 : +value;
+    setDuration(newDuration);
+    if (!sceneRef.current) return;
+    sceneRef.current.updateDuration(newDuration * 1000);
+  };
+
+  const onDownload = () => {
+    if (!sceneRef.current) return;
+    sceneRef.current.downloadFile();
+  };
+
+  const onUpload = () => {
+    if (!sceneRef.current) return;
+    sceneRef.current.uploadFile();
+  };
+
+  const onPointerLeave = () => {
+    if (!sceneRef.current) return;
+    sceneRef.current.clearHoveredElement();
+  };
+
   return (
     <div className="main-container">
       <div className="canvas-container">
@@ -71,15 +103,29 @@ export const App = () => {
           height={canvasSize.height}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
+          onPointerLeave={onPointerLeave}
         ></canvas>
       </div>
       <div className="sidebar">
         <button onClick={onAddRectangle}>Add Rectangle</button>
-        <div className="canvas-info">
-          <small>
-            Canvas: {canvasSize.width} × {canvasSize.height}
-          </small>
-        </div>
+        <Spacer />
+        <div>Duration:</div>
+        <Spacer />
+        <input
+          type="number"
+          min="1"
+          step="1"
+          onChange={onChangeDuration}
+          value={duration}
+          onFocus={(e) => e.target.select()}
+        />
+        <Spacer />
+        <button onClick={onAnimate}>Play</button>
+        <Spacer />
+        <Spacer />
+        <button onClick={onDownload}>Download .json</button>
+        <Spacer />
+        <button onClick={onUpload}>Upload .json</button>
       </div>
     </div>
   );

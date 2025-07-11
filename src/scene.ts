@@ -1,4 +1,5 @@
 // import { sceneCoordsToViewportCoords } from "./utils/coords";
+import { validateSceneData } from "./utils/basic-validation";
 import { getHitElement } from "./utils/clicked-rectangle";
 import {
   createNewElement,
@@ -12,6 +13,9 @@ class Scene {
   #canvas: HTMLCanvasElement;
   #hoveredElement: TElementType | null = null;
   #redrawScheduled = false;
+  #animationFrameId: number | null = null;
+  duration: number = 1000;
+  #speed: number = 0.03;
 
   constructor(canvas: HTMLCanvasElement) {
     this.#elements = [];
@@ -71,6 +75,11 @@ class Scene {
     }
   }
 
+  clearHoveredElement() {
+    this.#hoveredElement = null;
+    this.redraw();
+  }
+
   redraw() {
     this.#clearCanvas();
     this.#elements.forEach((element) => {
@@ -87,8 +96,83 @@ class Scene {
     if (this.#hoveredElement) {
       drawBorder(this.#canvas, this.#hoveredElement);
     }
-    console.log(this.#elements);
   }
+
+  startRotationAnimation() {
+    const startTime = performance.now();
+    const initialSpeed = this.#speed;
+
+    const animate = (now: number) => {
+      const elapsed = now - startTime;
+      const t = Math.min(elapsed / this.duration, 1);
+
+      // Slowdown only during the last second
+      let easedSpeed = initialSpeed;
+      const slowdownStart = this.duration - 1000;
+      if (elapsed > slowdownStart) {
+        const easeT = (elapsed - slowdownStart) / 1000;
+        easedSpeed = initialSpeed * (1 - easeT);
+      }
+
+      this.#elements.forEach((element) => {
+        element.rotation += easedSpeed;
+      });
+      this.redraw();
+
+      if (t < 1) {
+        this.#animationFrameId = requestAnimationFrame(animate);
+      } else {
+        this.#animationFrameId = null;
+      }
+    };
+
+    if (!this.#animationFrameId) {
+      this.#animationFrameId = requestAnimationFrame(animate);
+    }
+  }
+
+  updateDuration(duration: number) {
+    this.duration = duration;
+  }
+
+  downloadFile = () => {
+    const data = { elements: this.#elements, duration: this.duration };
+    const blob = new Blob([JSON.stringify(data)], {
+      type: "application/json",
+    });
+    const a = document.createElement("a");
+    a.download = "scene.json";
+    a.href = window.URL.createObjectURL(blob);
+    const clickEvt = new MouseEvent("click", {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    });
+    a.dispatchEvent(clickEvt);
+    a.remove();
+  };
+
+  uploadFile = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/json";
+    input.onchange = async (e: Event) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const data = JSON.parse(text);
+        if (validateSceneData(data)) {
+          this.#elements = data.elements;
+          this.duration = data.duration;
+          this.redraw();
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    input.click();
+  };
 }
 
 export default Scene;

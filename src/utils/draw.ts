@@ -11,8 +11,11 @@ export const drawRect = (
 ) => {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  const centerX = x + width / 2;
+  const centerY = y + height / 2;
+
   ctx.save();
-  ctx.translate(x + width / 2, y + height / 2);
+  ctx.translate(centerX, centerY);
   ctx.rotate(rotation);
   ctx.fillStyle = color;
   ctx.fillRect(-width / 2, -height / 2, width, height);
@@ -26,8 +29,10 @@ export const drawBorder = (
   const { x, y, width, height, rotation } = element;
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  const centerX = x + width / 2;
+  const centerY = y + height / 2;
   ctx.save();
-  ctx.translate(x + width / 2, y + height / 2);
+  ctx.translate(centerX, centerY);
   ctx.rotate(rotation);
   ctx.strokeStyle = "#7048e8";
   ctx.lineWidth = 3;
