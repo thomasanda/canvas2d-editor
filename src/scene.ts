@@ -1,4 +1,3 @@
-// import { sceneCoordsToViewportCoords } from "./utils/coords";
 import { validateSceneData } from "./utils/basic-validation";
 import { getHitElement } from "./utils/clicked-rectangle";
 import {
@@ -6,13 +5,13 @@ import {
   getRandomColor,
   type TElementType,
 } from "./utils/create-new-element";
-import { drawBorder, drawRect } from "./utils/draw";
+import { drawBorder, drawRectsBatch } from "./utils/draw";
 
 class Scene {
   #elements: TElementType[];
   #canvas: HTMLCanvasElement;
+  #ctx: CanvasRenderingContext2D;
   #hoveredElement: TElementType | null = null;
-  #redrawScheduled = false;
   #animationFrameId: number | null = null;
   duration: number = 1000;
   #speed: number = 0.03;
@@ -20,33 +19,20 @@ class Scene {
   constructor(canvas: HTMLCanvasElement) {
     this.#elements = [];
     this.#canvas = canvas;
-  }
-
-  #scheduleRedraw() {
-    if (!this.#redrawScheduled) {
-      this.#redrawScheduled = true;
-      requestAnimationFrame(() => {
-        this.redraw();
-        this.#redrawScheduled = false;
-      });
-    }
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("Could not get 2D context");
+    this.#ctx = ctx;
+    this.#ctx.imageSmoothingEnabled = false;
   }
 
   addElement(width: number, height: number) {
     const element = createNewElement(width, height);
     this.#elements.push(element);
-    this.#scheduleRedraw();
+    this.redraw();
   }
 
   #getAllElements() {
     return this.#elements;
-  }
-
-  #clearCanvas() {
-    const ctx = this.#canvas.getContext("2d");
-    if (ctx) {
-      ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
-    }
   }
 
   updateElement(clientX: number, clientY: number) {
@@ -81,20 +67,10 @@ class Scene {
   }
 
   redraw() {
-    this.#clearCanvas();
-    this.#elements.forEach((element) => {
-      drawRect(
-        this.#canvas,
-        element.x,
-        element.y,
-        element.width,
-        element.height,
-        element.color,
-        element.rotation,
-      );
-    });
+    this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
+    drawRectsBatch(this.#ctx, this.#elements);
     if (this.#hoveredElement) {
-      drawBorder(this.#canvas, this.#hoveredElement);
+      drawBorder(this.#ctx, this.#hoveredElement);
     }
   }
 

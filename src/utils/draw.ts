@@ -1,36 +1,33 @@
 import type { TElementType } from "./create-new-element";
 
-export const drawRect = (
-  canvas: HTMLCanvasElement,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  color: string,
-  rotation: number,
+export const drawRectsBatch = (
+  ctx: CanvasRenderingContext2D,
+  elements: TElementType[],
 ) => {
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
-  const centerX = x + width / 2;
-  const centerY = y + height / 2;
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i];
+    const { x, y, width, height, rotation, color } = element;
 
-  ctx.save();
-  ctx.translate(centerX, centerY);
-  ctx.rotate(rotation);
-  ctx.fillStyle = color;
-  ctx.fillRect(-width / 2, -height / 2, width, height);
-  ctx.restore();
+    const centerX = x + width / 2;
+    const centerY = y + height / 2;
+
+    ctx.save();
+    ctx.translate(centerX, centerY);
+    ctx.rotate(rotation);
+    ctx.fillStyle = color;
+    ctx.fillRect(-width / 2, -height / 2, width, height);
+    ctx.restore();
+  }
 };
 
 export const drawBorder = (
-  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
   element: TElementType,
 ) => {
   const { x, y, width, height, rotation } = element;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) return;
   const centerX = x + width / 2;
   const centerY = y + height / 2;
+
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(rotation);

@@ -10,6 +10,7 @@ import {
 import Scene from "../scene";
 import "./app.css";
 import { Spacer } from "./spacer";
+import { DPR } from "../utils/constants";
 
 export const App = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -21,9 +22,12 @@ export const App = () => {
   const updateCanvasSize = useCallback(() => {
     if (canvasRef.current) {
       const rect = canvasRef.current.getBoundingClientRect();
+      const ctx = canvasRef.current.getContext("2d");
+      if (!ctx) return;
+      ctx.scale(DPR, DPR);
       setCanvasSize({
-        width: rect.width,
-        height: rect.height,
+        width: rect.width * DPR,
+        height: rect.height * DPR,
       });
     }
   }, []);
@@ -50,13 +54,10 @@ export const App = () => {
     sceneRef.current.updateElement(clientX, clientY);
   };
 
-  const onAddRectangle = (evt: MouseEvent<HTMLButtonElement>) => {
+  const onAddRectangle = () => {
     if (!sceneRef.current || !canvasRef.current) return;
     const { width, height } = canvasRef.current;
-    const count = evt.shiftKey ? 1001 : 1;
-    for (let i = 0; i < count; i++) {
-      sceneRef.current.addElement(width, height);
-    }
+    sceneRef.current.addElement(width, height);
   };
 
   const onPointerMove = (evt: PointerEvent<HTMLCanvasElement>) => {

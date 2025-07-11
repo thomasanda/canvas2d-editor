@@ -1,4 +1,4 @@
-import { clampCenter, getRotatedBoundingBox } from "./calcs";
+import { DPR } from "./constants";
 import type { TElementType } from "./create-new-element";
 
 const elementHit = (el: TElementType, xCoord: number, yCoord: number) => {
@@ -21,5 +21,7 @@ export const getHitElement = (
   xCoord: number,
   yCoord: number,
 ) => {
-  return [...elements].reverse().find((el) => elementHit(el, xCoord, yCoord));
+  return [...elements]
+    .reverse()
+    .find((el) => elementHit(el, xCoord * DPR, yCoord * DPR));
 };
