@@ -5,6 +5,7 @@ export type TElementType = {
   width: number;
   height: number;
   color: string;
+  rotation: number;
 };
 
 export const getRandomColor = () => {
@@ -19,12 +20,13 @@ export const createNewElement = (
   canvasHeight: number,
 ): TElementType => {
   const random = (min: number, max: number) =>
-    Math.floor(Math.random() * (max - min + 1)) + min;
+    ((Math.random() * (max - min + 1)) | 0) + min;
 
   const width = random(20, Math.max(20, Math.floor(canvasWidth / 2)));
   const height = random(20, Math.max(20, Math.floor(canvasHeight / 2)));
   const x = random(0, canvasWidth - width);
   const y = random(0, canvasHeight - height);
+  const rotation = ((Math.random() * 360 - 180) * Math.PI) / 180;
 
   return {
     id: crypto.randomUUID(),
@@ -33,5 +35,6 @@ export const createNewElement = (
     width,
     height,
     color: getRandomColor(),
+    rotation,
   };
 };

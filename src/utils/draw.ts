@@ -1,3 +1,5 @@
+import type { TElementType } from "./create-new-element";
+
 export const drawRect = (
   canvas: HTMLCanvasElement,
   x: number,
@@ -5,9 +7,30 @@ export const drawRect = (
   width: number,
   height: number,
   color: string,
+  rotation: number,
 ) => {
   const ctx = canvas.getContext("2d");
   if (!ctx) return;
+  ctx.save();
+  ctx.translate(x + width / 2, y + height / 2);
+  ctx.rotate(rotation);
   ctx.fillStyle = color;
-  ctx.fillRect(x, y, width, height);
+  ctx.fillRect(-width / 2, -height / 2, width, height);
+  ctx.restore();
+};
+
+export const drawBorder = (
+  canvas: HTMLCanvasElement,
+  element: TElementType,
+) => {
+  const { x, y, width, height, rotation } = element;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  ctx.save();
+  ctx.translate(x + width / 2, y + height / 2);
+  ctx.rotate(rotation);
+  ctx.strokeStyle = "#7048e8";
+  ctx.lineWidth = 3;
+  ctx.strokeRect(-width / 2, -height / 2, width, height);
+  ctx.restore();
 };
