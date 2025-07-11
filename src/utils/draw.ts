@@ -1,23 +1,20 @@
 import type { TElementType } from "./create-new-element";
 
-export const drawRectsBatch = (
+export const drawRect = (
   ctx: CanvasRenderingContext2D,
-  elements: TElementType[],
+  element: TElementType,
 ) => {
-  for (let i = 0; i < elements.length; i++) {
-    const element = elements[i];
-    const { x, y, width, height, rotation, color } = element;
+  const { x, y, width, height, color, rotation } = element;
 
-    const centerX = x + width / 2;
-    const centerY = y + height / 2;
+  const centerX = x + width / 2;
+  const centerY = y + height / 2;
 
-    ctx.save();
-    ctx.translate(centerX, centerY);
-    ctx.rotate(rotation);
-    ctx.fillStyle = color;
-    ctx.fillRect(-width / 2, -height / 2, width, height);
-    ctx.restore();
-  }
+  ctx.save();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(rotation);
+  ctx.fillStyle = color;
+  ctx.fillRect(-width / 2, -height / 2, width, height);
+  ctx.restore();
 };
 
 export const drawBorder = (

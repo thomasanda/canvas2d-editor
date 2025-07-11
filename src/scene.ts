@@ -5,7 +5,7 @@ import {
   getRandomColor,
   type TElementType,
 } from "./utils/create-new-element";
-import { drawBorder, drawRectsBatch } from "./utils/draw";
+import { drawBorder, drawRect } from "./utils/draw";
 
 class Scene {
   #elements: TElementType[];
@@ -68,7 +68,9 @@ class Scene {
 
   redraw() {
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
-    drawRectsBatch(this.#ctx, this.#elements);
+    this.#elements.forEach((element) => {
+      drawRect(this.#ctx, element);
+    });
     if (this.#hoveredElement) {
       drawBorder(this.#ctx, this.#hoveredElement);
     }
