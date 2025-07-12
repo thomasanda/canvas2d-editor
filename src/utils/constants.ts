@@ -16,4 +16,5 @@ export const SideBarStrings = {
   Play: "Play",
   DownloadJSON: "Download .json",
   UploadJSON: "Upload .json",
+  ClearCanvas: "Clear Canvas",
 } as const;

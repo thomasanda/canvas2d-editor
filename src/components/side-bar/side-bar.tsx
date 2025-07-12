@@ -32,6 +32,11 @@ export const Sidebar = ({ sceneRef, canvasRef }: TSidebarProps) => {
     sceneRef.current.uploadFile();
   };
 
+  const onClearCanvas = () => {
+    if (!sceneRef.current) return;
+    sceneRef.current.clearCanvas();
+  };
+
   return (
     <div className="sidebar">
       <Button onClick={onAddRectangle} content={SideBarStrings.AddRectangle} />
@@ -44,6 +49,12 @@ export const Sidebar = ({ sceneRef, canvasRef }: TSidebarProps) => {
       <Button onClick={onDownload} content={SideBarStrings.DownloadJSON} />
       <Spacer />
       <Button onClick={onUpload} content={SideBarStrings.UploadJSON} />
+      <Spacer />
+      <Button
+        onClick={onClearCanvas}
+        content={SideBarStrings.ClearCanvas}
+        color="#FF0022"
+      />
     </div>
   );
 };

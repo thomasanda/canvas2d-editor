@@ -19,13 +19,14 @@ class Scene {
   #listeners: Set<() => void>;
 
   constructor(canvas: HTMLCanvasElement) {
-    this.#elements = [];
+    const data = JSON.parse(localStorage.getItem("canvasData") ?? "{}");
+    this.#elements = (data.elements as TElementType[]) || [];
     this.#canvas = canvas;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Could not get 2D context");
     this.#ctx = ctx;
     this.#speed = 0.03;
-    this.duration = 1000;
+    this.duration = data.duration || 1000;
     this.#listeners = new Set();
   }
 
@@ -75,6 +76,9 @@ class Scene {
     this.#elements.forEach((element) => {
       drawRect(this.#ctx, element);
     });
+
+    const data = { elements: this.#elements, duration: this.duration };
+    localStorage.setItem("canvasData", JSON.stringify(data));
     if (this.#hoveredElement) {
       drawBorder(this.#ctx, this.#hoveredElement);
     }
@@ -88,7 +92,6 @@ class Scene {
       const elapsed = now - startTime;
       const t = Math.min(elapsed / this.duration, 1);
 
-      // Slowdown only during the last second
       let easedSpeed = initialSpeed;
       const slowdownStart = this.duration - 1000;
       if (elapsed > slowdownStart) {
@@ -165,6 +168,14 @@ class Scene {
   updateDuration(duration: number) {
     this.duration = duration;
     this.#notifyListeners();
+    const data = { elements: this.#elements, duration: this.duration };
+    localStorage.setItem("canvasData", JSON.stringify(data));
+  }
+
+  clearCanvas() {
+    this.#elements = [];
+    localStorage.clear();
+    this.redraw();
   }
 }
 
