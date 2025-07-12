@@ -1,7 +1,9 @@
-import { useState, type ChangeEvent, type RefObject } from "react";
+import type { RefObject } from "react";
 import { Button } from "../button/button";
 import { Spacer } from "../spacer/spacer";
 import type Scene from "../../scene";
+import { Input } from "../input/input";
+import { SideBarStrings } from "../../utils/constants";
 
 type TSidebarProps = {
   sceneRef: RefObject<Scene | null>;
@@ -9,8 +11,6 @@ type TSidebarProps = {
 };
 
 export const Sidebar = ({ sceneRef, canvasRef }: TSidebarProps) => {
-  const [duration, setDuration] = useState(1);
-
   const onAnimate = () => {
     if (!sceneRef.current) return;
     sceneRef.current.startRotationAnimation();
@@ -20,14 +20,6 @@ export const Sidebar = ({ sceneRef, canvasRef }: TSidebarProps) => {
     if (!sceneRef.current || !canvasRef.current) return;
     const { width, height } = canvasRef.current;
     sceneRef.current.addElement(width, height);
-  };
-
-  const onChangeDuration = (evt: ChangeEvent<HTMLInputElement>) => {
-    const { value } = evt.target;
-    const newDuration = value === "" || +value < 1 ? 1 : +value;
-    setDuration(newDuration);
-    if (!sceneRef.current) return;
-    sceneRef.current.updateDuration(newDuration * 1000);
   };
 
   const onDownload = () => {
@@ -42,27 +34,16 @@ export const Sidebar = ({ sceneRef, canvasRef }: TSidebarProps) => {
 
   return (
     <div className="sidebar">
-      <Button onClick={onAddRectangle} content="Add Rectangle" />
+      <Button onClick={onAddRectangle} content={SideBarStrings.AddRectangle} />
       <Spacer />
-      <div>Duration:</div>
+      <Input sceneRef={sceneRef} />
       <Spacer />
-      <div className="duration-input-container">
-        <input
-          type="number"
-          min="1"
-          step="1"
-          onChange={onChangeDuration}
-          value={duration}
-          onFocus={(e) => e.target.select()}
-        />
-      </div>
-      <Spacer />
-      <Button onClick={onAnimate} content="Play" />
+      <Button onClick={onAnimate} content={SideBarStrings.Play} />
       <Spacer />
       <Spacer />
-      <Button onClick={onDownload} content="Download .json" />
+      <Button onClick={onDownload} content={SideBarStrings.DownloadJSON} />
       <Spacer />
-      <Button onClick={onUpload} content="Upload .json" />
+      <Button onClick={onUpload} content={SideBarStrings.UploadJSON} />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import { validateSceneData } from "./utils/basic-validation";
 import { getHitElement } from "./utils/clicked-rectangle";
+import { FILE_NAME, InputType, MimeType } from "./utils/constants";
 import {
   createNewElement,
   getRandomColor,
@@ -13,8 +14,9 @@ class Scene {
   #ctx: CanvasRenderingContext2D;
   #hoveredElement: TElementType | null = null;
   #animationFrameId: number | null = null;
-  duration: number = 1000;
-  #speed: number = 0.03;
+  duration: number;
+  #speed: number;
+  #listeners: Set<() => void>;
 
   constructor(canvas: HTMLCanvasElement) {
     this.#elements = [];
@@ -22,7 +24,9 @@ class Scene {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Could not get 2D context");
     this.#ctx = ctx;
-    this.#ctx.imageSmoothingEnabled = false;
+    this.#speed = 0.03;
+    this.duration = 1000;
+    this.#listeners = new Set();
   }
 
   addElement(width: number, height: number) {
@@ -109,17 +113,13 @@ class Scene {
     }
   }
 
-  updateDuration(duration: number) {
-    this.duration = duration;
-  }
-
   downloadFile = () => {
     const data = { elements: this.#elements, duration: this.duration };
     const blob = new Blob([JSON.stringify(data)], {
-      type: "application/json",
+      type: MimeType.Json,
     });
     const a = document.createElement("a");
-    a.download = "scene.json";
+    a.download = FILE_NAME;
     a.href = window.URL.createObjectURL(blob);
     const clickEvt = new MouseEvent("click", {
       view: window,
@@ -132,8 +132,8 @@ class Scene {
 
   uploadFile = () => {
     const input = document.createElement("input");
-    input.type = "file";
-    input.accept = "application/json";
+    input.type = InputType.File;
+    input.accept = MimeType.Json;
     input.onchange = async (e: Event) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
@@ -144,6 +144,7 @@ class Scene {
           this.#elements = data.elements;
           this.duration = data.duration;
           this.redraw();
+          this.#notifyListeners();
         }
       } catch (e) {
         console.error(e);
@@ -151,6 +152,20 @@ class Scene {
     };
     input.click();
   };
+
+  addListener(listener: () => void) {
+    this.#listeners.add(listener);
+    return () => this.#listeners.delete(listener);
+  }
+
+  #notifyListeners() {
+    this.#listeners.forEach((listener) => listener());
+  }
+
+  updateDuration(duration: number) {
+    this.duration = duration;
+    this.#notifyListeners();
+  }
 }
 
 export default Scene;
