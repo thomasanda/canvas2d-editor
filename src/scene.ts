@@ -9,25 +9,44 @@ import {
 import { drawBorder, drawRect } from "./utils/draw";
 
 class Scene {
-  #elements: TElementType[];
   #canvas: HTMLCanvasElement;
   #ctx: CanvasRenderingContext2D;
+  #elements: TElementType[] = [];
   #hoveredElement: TElementType | null = null;
   #animationFrameId: number | null = null;
-  duration: number;
-  #speed: number;
-  #listeners: Set<() => void>;
+  duration: number = 1000;
+  #speed: number = 0.03;
+  #listeners: Set<() => void> = new Set();
+
+  #debounce = <T extends unknown[]>(
+    callback: (...args: T) => void,
+    wait: number,
+  ) => {
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    return (...args: T) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => {
+        callback(...args);
+      }, wait);
+    };
+  };
+
+  #saveToLocalStorage = this.#debounce(() => {
+    try {
+      const data = { elements: this.#elements, duration: this.duration };
+      localStorage.setItem("canvasData", JSON.stringify(data));
+    } catch (error) {
+      console.warn(`Failed to store in local storage: ${error}`);
+    }
+  }, 500);
 
   constructor(canvas: HTMLCanvasElement) {
-    const data = JSON.parse(localStorage.getItem("canvasData") ?? "{}");
-    this.#elements = (data.elements as TElementType[]) || [];
     this.#canvas = canvas;
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Could not get 2D context");
     this.#ctx = ctx;
-    this.#speed = 0.03;
-    this.duration = data.duration || 1000;
-    this.#listeners = new Set();
   }
 
   addElement(width: number, height: number) {
@@ -36,26 +55,23 @@ class Scene {
     this.redraw();
   }
 
-  #getAllElements() {
-    return this.#elements;
-  }
-
   updateElement(clientX: number, clientY: number) {
-    const elements = this.#getAllElements();
-    const hitElement = getHitElement(elements, clientX, clientY);
+    const hitElement = getHitElement(this.#elements, clientX, clientY);
     if (hitElement) {
       const index = this.#elements.findIndex((el) => el.id === hitElement.id);
-      this.#elements[index] = {
-        ...this.#elements[index],
-        color: getRandomColor(),
-      };
+      if (index !== -1) {
+        this.#elements[index] = {
+          ...this.#elements[index],
+          color: getRandomColor(),
+        };
+        this.#saveToLocalStorage();
+      }
       this.redraw();
     }
   }
 
   setHoveredElement(clientX: number, clientY: number) {
-    const elements = this.#getAllElements();
-    const hitElement = getHitElement(elements, clientX, clientY);
+    const hitElement = getHitElement(this.#elements, clientX, clientY);
 
     if (hitElement && this.#hoveredElement !== hitElement) {
       this.#hoveredElement = hitElement;
@@ -77,8 +93,6 @@ class Scene {
       drawRect(this.#ctx, element);
     });
 
-    const data = { elements: this.#elements, duration: this.duration };
-    localStorage.setItem("canvasData", JSON.stringify(data));
     if (this.#hoveredElement) {
       drawBorder(this.#ctx, this.#hoveredElement);
     }
@@ -108,6 +122,7 @@ class Scene {
         this.#animationFrameId = requestAnimationFrame(animate);
       } else {
         this.#animationFrameId = null;
+        this.#saveToLocalStorage();
       }
     };
 
@@ -117,20 +132,19 @@ class Scene {
   }
 
   downloadFile = () => {
-    const data = { elements: this.#elements, duration: this.duration };
-    const blob = new Blob([JSON.stringify(data)], {
-      type: MimeType.Json,
-    });
-    const a = document.createElement("a");
-    a.download = FILE_NAME;
-    a.href = window.URL.createObjectURL(blob);
-    const clickEvt = new MouseEvent("click", {
-      view: window,
-      bubbles: true,
-      cancelable: true,
-    });
-    a.dispatchEvent(clickEvt);
-    a.remove();
+    try {
+      const data = { elements: this.#elements, duration: this.duration };
+      const blob = new Blob([JSON.stringify(data)], {
+        type: MimeType.Json,
+      });
+      const a = document.createElement("a");
+      a.download = FILE_NAME;
+      a.href = URL.createObjectURL(blob);
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (error) {
+      console.error(`Failed to download file: ${error}`);
+    }
   };
 
   uploadFile = () => {
@@ -148,6 +162,8 @@ class Scene {
           this.duration = data.duration;
           this.redraw();
           this.#notifyListeners();
+        } else {
+          console.error("Invalid scene format");
         }
       } catch (e) {
         console.error(e);
@@ -168,18 +184,29 @@ class Scene {
   updateDuration(duration: number) {
     this.duration = duration;
     this.#notifyListeners();
-    const data = { elements: this.#elements, duration: this.duration };
-    localStorage.setItem("canvasData", JSON.stringify(data));
+    this.#saveToLocalStorage();
   }
 
   clearCanvas() {
+    this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
     this.#elements = [];
     localStorage.clear();
     if (this.#animationFrameId) {
       cancelAnimationFrame(this.#animationFrameId);
       this.#animationFrameId = null;
     }
-    this.redraw();
+  }
+
+  loadFromLocalStorage() {
+    try {
+      const data = JSON.parse(localStorage.getItem("canvasData") ?? "{}");
+      this.#elements = data.elements || [];
+      this.duration = data.duration || 1000;
+    } catch (error) {
+      console.warn("Failed to load from storage:", error);
+      this.#elements = [];
+      this.duration = 1000;
+    }
   }
 }
 
