@@ -23,7 +23,7 @@ class FileManager {
     this.#scene = scene;
   }
 
-  downloadFile = () => {
+  downloadFile() {
     try {
       const data = {
         elements: this.#elementManager.getElements(),
@@ -40,9 +40,9 @@ class FileManager {
     } catch (error) {
       console.error(`Failed to download file: ${error}`);
     }
-  };
+  }
 
-  uploadFile = () => {
+  uploadFile() {
     const input = document.createElement("input");
     input.type = InputType.File;
     input.accept = MimeType.Json;
@@ -69,7 +69,7 @@ class FileManager {
       }
     };
     input.click();
-  };
+  }
 }
 
 export default FileManager;

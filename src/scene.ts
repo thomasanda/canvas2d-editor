@@ -28,59 +28,60 @@ class Scene {
     this.#canvas = canvas;
     this.#ctx = this.#getContext(canvas);
     this.#initializeDependencies(dependencies);
+    this.#saveState();
   }
 
-  redraw(): void {
+  redraw() {
     this.#renderer.redraw();
   }
 
-  startRotationAnimation(): void {
+  startRotationAnimation() {
     this.#animator.startRotationAnimation(this.duration);
   }
 
-  addElement(width: number, height: number): void {
+  addElement(width: number, height: number) {
     this.#elementManager.addElement(width, height);
     this.#saveAndRedraw();
   }
 
-  updateElement(clientX: number, clientY: number): void {
+  updateElement(clientX: number, clientY: number) {
     this.#elementManager.updateElement(clientX, clientY);
     this.#saveAndRedraw();
   }
 
-  setHoveredElement(clientX: number, clientY: number): void {
+  setHoveredElement(clientX: number, clientY: number) {
     this.#elementManager.setHoveredElement(clientX, clientY);
     this.redraw();
   }
 
-  clearHoveredElement(): void {
+  clearHoveredElement() {
     this.#elementManager.clearHoveredElement();
     this.redraw();
   }
 
-  updateDuration(duration: number = 1000): void {
+  updateDuration(duration: number = 1000) {
     this.duration = duration;
     this.notifyListeners();
     this.#saveState();
   }
 
-  addListener(listener: () => void): () => void {
+  addListener(listener: () => void) {
     this.#listeners.add(listener);
     return () => this.#listeners.delete(listener);
   }
 
-  notifyListeners(): void {
+  notifyListeners() {
     this.#listeners.forEach((listener) => listener());
   }
 
-  clearCanvas(): void {
+  clearCanvas() {
     this.#ctx.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
     this.#elementManager.clearElements();
     this.#animator.cancelAnimation();
     this.#saveState();
   }
 
-  loadFromLocalStorage(): void {
+  loadFromLocalStorage() {
     this.#sceneStorage.loadFromLocalStorage(
       this.#elementManager,
       (duration) => {
@@ -89,21 +90,21 @@ class Scene {
     );
   }
 
-  downloadFile = (): void => {
+  downloadFile() {
     this.#fileManager.downloadFile();
-  };
+  }
 
-  uploadFile = (): void => {
+  uploadFile() {
     this.#fileManager.uploadFile();
-  };
+  }
 
-  #getContext(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
+  #getContext(canvas: HTMLCanvasElement) {
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("Could not get 2D context");
     return ctx;
   }
 
-  #initializeDependencies(deps: SceneDependencies): void {
+  #initializeDependencies(deps: SceneDependencies) {
     this.#elementManager = deps.elementManager ?? new ElementManager();
     this.#sceneStorage = deps.sceneStorage ?? new SceneStorage();
     this.#renderer =
@@ -122,12 +123,12 @@ class Scene {
       );
   }
 
-  #saveAndRedraw(): void {
+  #saveAndRedraw() {
     this.#saveState();
     this.redraw();
   }
 
-  #saveState(): void {
+  #saveState() {
     this.#sceneStorage.saveToLocalStorage(
       this.#elementManager.getElements(),
       this.duration,
