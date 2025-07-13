@@ -49,6 +49,11 @@ input::-webkit-inner-spin-button {
   margin: 0;
 }
 
+/* This removes spinner for Firefox - @TODO check out the linter warning */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
 .sidebar input:focus {
   outline: none;
   border-color: #0066cc;
