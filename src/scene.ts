@@ -52,6 +52,7 @@ class Scene {
   addElement(width: number, height: number) {
     const element = createNewElement(width, height);
     this.#elements.push(element);
+    this.#saveToLocalStorage();
     this.redraw();
   }
 
