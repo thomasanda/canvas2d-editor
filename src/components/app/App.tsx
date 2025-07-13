@@ -27,7 +27,9 @@ export const App = () => {
   useEffect(() => {
     if (!canvasRef.current) return;
     sceneRef.current = new Scene(canvasRef.current);
-    sceneRef.current.loadFromLocalStorage();
+    if (localStorage.getItem("canvasData")) {
+      sceneRef.current.loadFromLocalStorage();
+    }
     updateCanvasSize();
     window.addEventListener("resize", updateCanvasSize);
     return () => window.removeEventListener("resize", updateCanvasSize);

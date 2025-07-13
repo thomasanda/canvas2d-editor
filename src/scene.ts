@@ -28,7 +28,6 @@ class Scene {
     this.#canvas = canvas;
     this.#ctx = this.#getContext(canvas);
     this.#initializeDependencies(dependencies);
-    this.#saveState();
   }
 
   redraw() {
