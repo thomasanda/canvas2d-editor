@@ -104,7 +104,7 @@ class Scene {
   }
 
   #initializeDependencies(deps: SceneDependencies): void {
-    this.#elementManager = deps.elementManager ?? new ElementManager([]);
+    this.#elementManager = deps.elementManager ?? new ElementManager();
     this.#sceneStorage = deps.sceneStorage ?? new SceneStorage();
     this.#renderer =
       deps.renderer ??

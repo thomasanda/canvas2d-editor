@@ -1,6 +1,7 @@
 import type ElementManager from "./element-manager";
 import type Renderer from "./renderer";
 import type SceneStorage from "./scene-storage";
+import { normalizeAngle } from "./utils/helpers";
 
 class Animator {
   #speed: number = 0.03;
@@ -37,7 +38,7 @@ class Animator {
       }
 
       elements.forEach((element) => {
-        element.rotation += easedSpeed;
+        element.rotation = normalizeAngle(element.rotation + easedSpeed);
       });
       this.#renderer.redraw();
 

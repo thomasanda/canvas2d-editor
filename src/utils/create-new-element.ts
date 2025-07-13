@@ -26,7 +26,7 @@ export const createNewElement = (
   const height = random(20, Math.max(20, (canvasHeight / 2) | 0));
   const x = random(0, canvasWidth - width);
   const y = random(0, canvasHeight - height);
-  const rotation = ((Math.random() * 360 - 180) * Math.PI) / 180;
+  const rotation = (Math.random() - 0.5) * 2 * Math.PI;
 
   return {
     id: crypto.randomUUID(),
