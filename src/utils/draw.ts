@@ -6,21 +6,14 @@ export const drawRect = (
 ) => {
   const { x, y, width, height, color, rotation } = element;
 
-  const centerX = Math.floor(x + width / 2);
-  const centerY = Math.floor(y + height / 2);
-  const flooredWidth = Math.floor(width);
-  const flooredHeight = Math.floor(height);
+  const centerX = (x + width / 2) | 0;
+  const centerY = (y + height / 2) | 0;
 
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(rotation);
   ctx.fillStyle = color;
-  ctx.fillRect(
-    Math.floor(-flooredWidth / 2),
-    Math.floor(-flooredHeight / 2),
-    flooredWidth,
-    flooredHeight,
-  );
+  ctx.fillRect((-width / 2) | 0, (-height / 2) | 0, width, height);
   ctx.restore();
 };
 
@@ -29,21 +22,14 @@ export const drawBorder = (
   element: TElementType,
 ) => {
   const { x, y, width, height, rotation } = element;
-  const centerX = Math.floor(x + width / 2);
-  const centerY = Math.floor(y + height / 2);
-  const flooredWidth = Math.floor(width);
-  const flooredHeight = Math.floor(height);
+  const centerX = (x + width / 2) | 0;
+  const centerY = (y + height / 2) | 0;
 
   ctx.save();
   ctx.translate(centerX, centerY);
   ctx.rotate(rotation);
   ctx.strokeStyle = "#7048e8";
   ctx.lineWidth = 3;
-  ctx.strokeRect(
-    Math.floor(-flooredWidth / 2),
-    Math.floor(-flooredHeight / 2),
-    flooredWidth,
-    flooredHeight,
-  );
+  ctx.strokeRect((-width / 2) | 0, (-height / 2) | 0, width, height);
   ctx.restore();
 };

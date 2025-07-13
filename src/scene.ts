@@ -175,6 +175,10 @@ class Scene {
   clearCanvas() {
     this.#elements = [];
     localStorage.clear();
+    if (this.#animationFrameId) {
+      cancelAnimationFrame(this.#animationFrameId);
+      this.#animationFrameId = null;
+    }
     this.redraw();
   }
 }
