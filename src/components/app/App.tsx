@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState, useCallback } from "react";
-import "./app.css";
+import "./App.css";
 import { DPR } from "../../utils/constants";
 import Scene from "../../scene";
 import { Canvas } from "../canvas/canvas";
