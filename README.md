@@ -37,9 +37,3 @@ A simple web-based canvas editor for creating and animating rectangular shapes.
 - Built with HTML5 Canvas API, React 19 and Typescript
 - Responsive viewport split between canvas and control panel
 - Persistence between page reloads (stores scene in localStorage)
-
-### How to run
-
-- `clone` repository and `cd` into `jitter-test`-dir
-- run `yarn` to install packages and `yarn run dev` to start the program
-- there are some unit-test that can be run with `yarn test`
